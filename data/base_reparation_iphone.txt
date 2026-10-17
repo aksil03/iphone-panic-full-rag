@@ -7,41 +7,101 @@ Pour trouver le rapport de crash sur l'appareil :
 
 # Correspondances par génération
 
-## iPhone 12 series and older
-- mic1 : charging port flex (SE 2020 could be a board issue)
-- mic2 : power button flex
-- prs0 : charging port flex
-- tg0b : battery, battery connector or battery data line
-- ans2 : NAND related
+## iPhone X
+- Symptômes : Redémarrage aléatoire toutes les 2 à 5 minutes, redémarrage en boucle après un changement de batterie ou de vitre arrière.
+- Indicateur dans le log : Rechercher la mention "Missing sensors:".
+- TG0B ou TG0V : Problème de batterie (batterie défectueuse, connecteur endommagé ou lignes de données I2C coupées au niveau des mosfets Q3201 / Q3200).
+- Prs0 ou Mic1 : Problème de la nappe du port de charge (charging port flex endommagé lors d'une chute ou d'une réparation de vitre arrière).
 
-## iPhone 13 series
-- 0x800 : charging port flex
-- 0x1000 : proximity flex
-- 0x1800 : charging port flex & proximity flex cable
-- 0x400 : sandwich separation
+## iPhone XS et XS Max
+- Symptômes : Redémarrage aléatoire toutes les 2 à 5 minutes, affichage d'un niveau de batterie à 0% alors qu'elle est branchée, boucles de redémarrage après un changement de vitre arrière ou de batterie.
+- Indicateur dans le log : Rechercher la mention "Missing sensors:".
+- TG0B ou TG0V : Problème lié à la batterie (batterie défectueuse, connecteur endommagé ou lignes de données I2C de la batterie coupées, nécessitant de vérifier les mosfets Q3201 / Q3200).
+- Prs0 ou Mic1 : Problème lié à la nappe du port de charge (*charging port flex*), souvent endommagée lors d'une chute ou d'une réparation de la vitre arrière.
+
+## iPhone 11
+- Symptômes : Redémarrage aléatoire toutes les 2 à 5 minutes, redémarrage en boucle après un changement de vitre arrière ou de batterie.
+- Indicateur dans le log : Rechercher la mention "Missing sensors:".
+- TG0B ou TG0V : Problème lié à la batterie (batterie défectueuse ou lignes de données I2C de la batterie coupées, vérifier les résistances R3202 et R3201).
+- Prs0 ou Mic1 : Problème lié à la nappe du port de charge (*charging port flex*), vérifier les résistances R6822 et R6823.
+- Mic2 : Problème lié au microphone situé sur la nappe du bouton power (*power button flex*). Une chute violente de l'iPhone 11 peut provoquer une séparation des deux couches de la carte mère (*sandwich separation*) et rompre la ligne Mic2, nécessitant un réalignement/reballe de la carte.
+
+## iPhone 11 Pro et 11 Pro Max
+- Symptômes : Redémarrage aléatoire toutes les 2 à 5 minutes, affichage de la charge à 0%, boucles de redémarrage après un changement de vitre arrière ou de batterie.
+- Indicateur dans le log : Rechercher la mention "Missing sensors:".
+- TG0B ou TG0V : Problème lié à la batterie (batterie défectueuse, connecteur endommagé ou ligne de données de batterie `PMU_TO_BATTERY_SWI` manquante).
+- Prs0 ou Mic1 : Problème lié à la nappe du port de charge (*charging port flex*).
+- Mic2 : Problème lié au microphone du bouton power (*power button flex*).
+
+## iPhone 12 series (Mini, 12, 12 Pro, 12 Pro Max)
+- Symptômes : Redémarrage aléatoire toutes les 2 à 5 minutes, redémarrage en boucle après un changement de batterie ou de vitre arrière.
+- Indicateur dans le log : Rechercher la mention "Missing sensors:".
+- TG0B ou TG0V : Problème lié à la batterie (batterie défectueuse, connecteur endommagé ou lignes de données `I2C2_SMC_SDA_1V8` / `I2C2_SMC_SCL_1V8` coupées, vérifier les résistances R2473, R2472, R2475).
+- Prs0 ou Mic1 : Problème lié à la nappe du port de charge (*charging port flex*).
+- Eiger : Également lié à un problème sur la nappe du port de charge.
+- Mic2 : Problème lié à la nappe du bouton power (*power button flex*).
+- ans2 : Problème lié à la mémoire NAND.
+
+## iPhone 13 series (Mini, 13, 13 Pro, 13 Pro Max)
+- Symptômes : Redémarrage aléatoire toutes les 2 à 5 minutes, redémarrage en boucle après un changement de vitre arrière ou d'écran.
+- Indicateur dans le log : Rechercher la mention "SMC PANIC - ASSERTION FAILED" suivie du tableau des capteurs et du code hexadécimal.
+- 0x800 : Problème de nappe du port de charge (*charging port flex*).
+- 0x1000 : Problème de nappe de proximité (*proximity flex* attachée à l'écran).
+- 0x1800 : Problème combiné (la nappe du port de charge ET la nappe de proximité sont défectueuses ou mal branchées).
+- 0x4000 : Problème de ligne de données de la batterie (fluctuation du pourcentage, message "pièce non d'origine", vérifier les broches du connecteur de batterie).
+- 0x400 (iPhone 13 Mini uniquement) : Problème de carte mère (*bottom board issue* / séparation de sandwich). L'iPhone 13 Mini doit communiquer avec le gyroscope ; nécessite de refaire les pads 207, 208, 502, 503, 504, 527, 528 de la carte inférieure.
+- 0xc00 (iPhone 13 Mini uniquement) : Problème combiné de carte mère (gyroscope / bottom board) ET de la nappe du port de charge.
 
 ## iPhone 14 et iPhone 14 Plus
-- 0x400000 : Wireless Charging Flex (Back Glass)
-- 0x100000 : Charging Port Flex
-- 0x500000 : Check the taptic engine as well as the charging port flex or a communication problem with the battery
-- 0x200000 : Proximity Flex Cable
+- Symptômes : Redémarrage aléatoire toutes les 2 à 5 minutes, redémarrage en boucle après une réparation de vitre arrière ou d'écran, ou suite à une chute violente.
+- Indicateur dans le log : Rechercher la mention "SMC PANIC - ASSERTION FAILED" suivie de l'erreur hexadécimale.
+- 0x400000 (ou 4194304) : Nappe de recharge sans fil (vitre arrière) défectueuse ou débranchée.
+- 0x100000 (ou 1048576) : Nappe du port de charge (*charging port flex*) défectueuse ou débranchée.
+- 0x500000 (ou 5242880) : Problème de communication avec la batterie lors de la charge, ou problème lié au taptic engine ainsi qu'à la nappe du port de charge.
+- 0x200000 (ou 2097152) : Câble de la nappe de proximité (*proximity flex cable*).
+- 0x600000 (ou 6291456) : Problème combiné de la nappe de proximité ET de la nappe de recharge sans fil.
+- 0x20000 (ou 131072) : Problème de carte mère, probable déconnexion de l'interposeur de la carte mère en sandwich (*sandwich board*).
 
 ## iPhone 14 Pro et iPhone 14 Pro Max
-- 0x80000 : proximity flex
-- 0x40000 : charging port flex
-- 0x10000 : power button flex
-- 0x20000 : sandwich separation
+- Symptômes : Redémarrage aléatoire toutes les 2 à 5 minutes, redémarrage en boucle après une réparation d'écran, de vitre arrière ou de port de charge.
+- Indicateur dans le log : Rechercher la mention "SMC PANIC - ASSERTION FAILED" suivie de l'erreur hexadécimale.
+- 0x80000 : Nappe de proximité (*proximity flex cable*).
+- 0x40000 : Nappe du port de charge (*charging port flex*).
+- 0x100000 : Nappe du bouton power (*power button flex*).
+- 0xc0000 : Problème combiné de la nappe de proximité ET de la nappe du port de charge.
+- 0x180000 : Problème combiné de la nappe de proximité ET de la nappe du bouton power.
+- 0x140000 : Problème combiné de la nappe du bouton power ET de la nappe du port de charge.
+- 0x1c0000 : Problème combiné de la nappe du port de charge, du bouton power ET de la nappe de proximité.
+- 0x20000 : Problème de carte mère (*sandwich board* / séparation des couches) ou dysfonctionnement du gyroscope U7300 nécessitant de vérifier les pads de la carte supérieure (pads 542, 543, 544, 545, 546, 6, 248).
+- 0xa0000 : Problème combiné d'une carte mère (gyroscope U7300) ET de la nappe de proximité.
+- 0x41 : Problème de données de batterie manquantes (fluctuation du pourcentage ou message de pièce non d'origine).
 
 ## iPhone 15 et iPhone 15 Plus
-- 0x200000 : Wireless Charging Flex (Back Glass)
-- 0x80000 : Charging Port Flex
-- 0x100000 : Proximity Flex Cable
+- Symptômes : Redémarrage aléatoire toutes les 2 à 5 minutes, redémarrage en boucle après une réparation de vitre arrière, d'écran ou suite à une chute.
+- Indicateur dans le log : Rechercher la mention "SMC PANIC - ASSERTION FAILED" suivie de l'erreur hexadécimale.
+- 0x200000 (ou 2097152) : Nappe de recharge sans fil (*Wireless Charging Flex* / vitre arrière).
+- 0x80000 (ou 524288) : Nappe du port de charge (*Charging Port Flex*) et/ou capteur de pression atmosphérique (*Air Pressure Sensor*).
+- 0x100000 (ou 1048576) : Câble de la nappe de proximité (*Proximity Flex Cable*).
+- 0x280000 (ou 2621440) : Problème combiné de la nappe de recharge sans fil ET de la nappe du port de charge.
+- 0x380000 (ou 3670016) : Problème combiné de la nappe de recharge sans fil, de la nappe du port de charge ET de la nappe de proximité.
+- 0xa1 (ou 161) : Problème de données de batterie (*battery data issue*), entraînant des fluctuations du pourcentage ou un message de pièce non d'origine.
 
 ## iPhone 15 Pro et iPhone 15 Pro Max
-- 0xa1 : battery
-- 0x300000 : Charging Port Flex
-- 0x400000 : Wireless Charging Flex
-- 0x700000 : Charging Port + Wireless Charging Flex
+- Symptômes : Redémarrage aléatoire toutes les 2 à 5 minutes, redémarrage en boucle après une réparation de vitre arrière, d'écran, ou un problème de batterie.
+- Indicateur dans le log : Rechercher la mention "SMC PANIC - ASSERTION FAILED" suivie de l'erreur hexadécimale.
+- 0x200000 (ou 2097152) : Câble de la nappe de proximité (*Proximity Flex*).
+- 0x300000 / 0x100000 (ou 3145728 / 1048576) : Nappe du port de charge (*Charging Port Flex*).
+- 0x400000 (ou 4194304) : Nappe de recharge sans fil (*Wireless Charging Flex* sur la vitre arrière).
+- 0x600000 (ou 6291456) : Problème combiné de la nappe de proximité ET de la nappe de recharge sans fil.
+- 0x700000 (ou 7340032) : Problème combiné de la nappe du port de charge ET de la nappe de recharge sans fil.
+- 0xa1 (ou 161) : Problème de données de batterie (*battery data issue*), provoquant des redémarrages toutes les 3 minutes si la batterie est défectueuse ou si les broches font un mauvais contact.
+
+## iPhone SE 2020
+- Symptômes : Redémarrage aléatoire toutes les 2 à 5 minutes, redémarrage en boucle après un changement de batterie, de vitre arrière ou de port de charge.
+- Indicateur dans le log : Rechercher la mention "Missing sensors:".
+- TG0B ou TG0V : Problème lié à la batterie (batterie défectueuse, connecteur endommagé ou lignes de données I2C coupées au niveau des mosfets Q3201 / Q3200)[cite: 3].
+- Mic1 / Prs0 : Problème lié à la nappe du port de charge (*charging port flex*). Attention aux pièces de mauvaise qualité ou aux nappes d'iPhone 8 qui provoquent des redémarrages sur SE 2020[cite: 3].
+- Défaut de carte mère (Piste coupée / Jumper) : Si le capteur Mic1 est introuvable et que la nappe est bonne, il s'agit souvent d'un défaut de fabrication de la carte mère (coupure sous le tiroir SIM). Nécessite de mesurer les lignes `I2C1_AP_SDA` et `I2C1_AP_SCL` en mode diode (si OL, poser des ponts/*jumpers* depuis les résistances R6610/R6611 vers le connecteur FPC)[cite: 3].
 
 # Universal Codes iPhone 13 up (Hex + Decimal)
 - 0x20 (32) — Charging circuit
@@ -61,3 +121,30 @@ Pour trouver le rapport de crash sur l'appareil :
 - 0x300000 (3145728) — USB-C (Pro models)
 - 0x400000 (4194304) — Wireless coil
 - 0x500000 (5242880) — Battery
+
+# Matrice Avancée des Erreurs Kernel, AOP et Bus I2C
+
+## 1. Erreurs du Coprocesseur AOP (Always-On Processor)
+- **AOP PANIC / AOP DATA ABORT** : Problème lié aux périphériques connectés sur le bus AOP (capteurs, boussole, caméras avant/arrière, microphone arrière ou capteur de proximité). 
+- **AOP PANIC – Pressure queue blocked** : Problème lié à la boussole ou au capteur de pression.
+- **AOP PREFETCH ABORT** : Erreur de chargement de firmware, souvent résolue après une réinitialisation ou une mise à jour (*flashing*), ou liée à un problème de caméra/nappe avant.
+
+## 2. Erreurs des Bus I2C et Correspondances par Modèle
+Si une erreur de bus I2C est signalée dans le log, cela indique un court-circuit ou une rupture de communication sur la ligne correspondant au composant :
+- **i2c0** : 
+  - iPhone 6 / 6 Plus / 7 / 7 Plus / 6S / 6S Plus / XR / XS / XS Max : Périphériques associés (caméras, micro, capteurs).
+- **i2c1** : 
+  - iPhone 6 / 6 Plus / 6S / 6S Plus / 7 / 7 Plus / 8 / 8 Plus / X / XR / XS / XS Max : Périphériques audio, connecteur de charge, ou piste de carte mère (ex: coupure sous le tiroir SIM sur SE 2020).
+- **i2c2** : 
+  - iPhone 6 / 6 Plus / 6S / 6S Plus / 7 / 7 Plus / 8 / 8 Plus / X / XS / XS Max : Périphériques liés au port de charge, haut-parleur, ou circuits audio.
+- **i2c3** : 
+  - iPhone 7 / 7 Plus / 8 / 8 Plus / X / XS / XS Max / XR : Liaison avec le gyroscope, l'accéléromètre ou les puces de gestion de la carte mère.
+
+## 3. Erreurs de Sécurité et Système (SEP & Stockage)
+- **SEP ROM / SEP DATA** : Problème lié au sous-système de sécurité (Secure Enclave Processor), souvent en lien avec la nappe de reconnaissance faciale (Face ID / TrueDepth), le bouton Touch ID, ou des liaisons abîmées sur la carte mère.
+- **ANS2 / ANS / nvme** : Problème de communication avec la mémoire flash / **disque dur (NAND)** ou circuit associé (circuits U2700, U6110, etc.). Peut nécessiter une vérification des soudures de la NAND ou de la couche interstice de la carte mère (*sandwich layer*).
+- **AMCC Error / USB chip** : Problème lié à la puce de gestion USB (Tristar / Hydra, ex: U3100, U3300, U6200).
+
+## 4. Erreurs de Watchdog et d'Alimentation CPU
+- **userspace watchdog timeout** : Arrêt forcé par le système d'exploitation car une tâche n'a pas répondu dans le temps imparti. Souvent lié à un problème logiciel ou à un conflit matériel (périphérique défectueux, ampli de son, module Wi-Fi).
+- **AppleSOC hot / CPU power supply** : Surchauffe du processeur, problèmes d'inductance de l'étage d'alimentation du CPU, ou micro-fissures/soudures froides sur la carte mère en sandwich (*CPU down / virtual welding*).
