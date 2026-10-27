@@ -1,0 +1,7 @@
+gradio==6.30.0
+llama_index==0.14.25
+numpy==2.5.4
+openai==3.40.0
+python-dotenv==1.2.4
+rank_bm25==0.2.2
+sentence_transformers==6.1.0
