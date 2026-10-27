@@ -45,14 +45,14 @@ Installer les dépendances :
    pip install -r requirements.txt
    ```
 
-   Méthode classique (via le terminal) :
+Méthode classique (via le terminal) :
    ```bash
-    python app.py
-    ```
+   python app.py
+   ```
 
-    Méthode rapide (Raccourci Windows) :
+Méthode rapide (Raccourci Windows) :
 
-    Si vous souhaitez lancer l'application en un double-clic depuis votre bureau sous Windows, vous pouvez créer un raccourci pointant vers la commande suivante (en adaptant le chemin d'accès à votre dossier) :
+Si vous souhaitez lancer l'application en un double-clic depuis votre bureau sous Windows, vous pouvez créer un raccourci pointant vers la commande suivante (en adaptant le chemin d'accès à votre dossier) :
    ```bash
    cmd.exe /k "cd /d C:\Chemin\Vers\Votre\Rag_apple_panic_logs && venv\Scripts\activate && python app.py"
    ```
