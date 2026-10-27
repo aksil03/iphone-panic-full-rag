@@ -23,8 +23,34 @@ Ce projet est un assistant intelligent basé sur l'IA générative et l'architec
 
 ---
 
-## Guide d'installation et d'utilisation
+## Guide d'installation et d'utilisation  Lancer l'application
 
 Cloner le dépôt :
    ```bash
    git clone [https://github.com/aksil03/iphone-panic-full-rag.git](https://github.com/aksil03/iphone-panic-full-rag.git)
+   cd iphone-panic-full-rag
+
+Créer et activer l'environnement virtuel :
+   ```bash
+   python -m venv venv
+   # Sur Windows :
+   venv\Scripts\activate
+   # Sur Mac / Linux :
+   # source venv/bin/activate
+
+Installer les dépendances :
+   ```bash
+   pip install -r requirements.txt
+
+
+   Méthode classique (via le terminal) :
+   ```bash
+    python app.py
+
+    Méthode rapide (Raccourci Windows) :
+
+    Si vous souhaitez lancer l'application en un double-clic depuis votre bureau sous Windows, vous pouvez créer un raccourci pointant vers la commande suivante (en adaptant le chemin d'accès à votre dossier) :
+   ```bash
+    cmd.exe /k "cd /d C:\Chemin\Vers\Votre\Rag_apple_panic_logs && venv\Scripts\activate && python app.py"
+
+
