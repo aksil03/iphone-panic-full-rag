@@ -1,20 +1,20 @@
 import os
 import numpy as np
 from config import client
-from ingestion import charger_et_decouper_documents
-from vector_store import generer_embeddings_azure
+from vector_store import get_chroma_collection, embedding_model
 from rank_bm25 import BM25Okapi
-from sentence_transformers import CrossEncoder, SentenceTransformer
+from sentence_transformers import CrossEncoder
 
-# Chargement du modèle de re-ranking en local
+# Chargement du modèle de re ranking en local
 reranker = CrossEncoder('BAAI/bge-reranker-base')
 
-local_embedding_model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
+# Récupération ou Initialisation de la collection ChromaDB
+collection = get_chroma_collection()
 
 # Définition du seuil minimal pour le Guardrail 
 SEUIL_PERTINENCE = 0.0
 
-# Définition du System Prompt anti-hallucination
+# Définition du System Prompt anti hallucination
 SYSTEM_PROMPT = """
 Tu es un assistant expert en diagnostic et réparation de cartes mères et de matériel iPhone. 
 Tu analyses des rapports de crash (panic-full) fournis par les utilisateurs.
@@ -30,7 +30,6 @@ Instructions de diagnostic :
 """
 
 def cosine_similarity(a, b):
-    # Calcule la similarité cosinus entre deux vecteurs
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 def executer_pipeline_rag(input_data):
@@ -68,18 +67,19 @@ def executer_pipeline_rag(input_data):
     print(f"\n[Query Rewriting] Question originale : {derniere_question}")
     print(f"[Query Rewriting] Requête optimisée pour la recherche : {query_recherchee}")
 
-    # Chargement et découpage des documents
-    nodes = charger_et_decouper_documents()
-    
-    # Préparation BM25
-    corpus_textes = [node.text for node in nodes]
-    tokenized_corpus = [doc.lower().split(" ") for doc in corpus_textes]
+    # Vectorisation de la requête utilisateur
+    question_vector = embedding_model.encode(query_recherchee).tolist()
+
+    # Interrogation de ChromaDB récupération des 20 plus proches sémantiquement
+    results = collection.query(
+        query_embeddings=[question_vector],
+        n_results=min(20, collection.count())
+    )
+    retrieved_texts = results['documents'][0]
+
+    # Préparation BM25 sur les documents restreints ramenés par ChromaDB
+    tokenized_corpus = [doc.lower().split(" ") for doc in retrieved_texts]
     bm25 = BM25Okapi(tokenized_corpus)
-    
-    # Génération des embeddings basés sur la requête réécrite
-    vectors_data = generer_embeddings_azure(nodes)
-    
-    question_vector = local_embedding_model.encode(query_recherchee).tolist()
     
     tokenized_query = query_recherchee.lower().split(" ")
     bm25_scores = bm25.get_scores(tokenized_query)
@@ -90,20 +90,21 @@ def executer_pipeline_rag(input_data):
     scored_candidates = []
     alpha = 0.5 
     
-    for i, item in enumerate(vectors_data):
-        cos_score = cosine_similarity(question_vector, item["vector"])
+    for i, text in enumerate(retrieved_texts):
+        doc_vector = embedding_model.encode(text).tolist()
+        cos_score = cosine_similarity(question_vector, doc_vector)
         kw_score = normalized_bm25[i]
         hybrid_score = (alpha * cos_score) + ((1 - alpha) * kw_score)
         
         scored_candidates.append({
-            "text": item["text"],
+            "text": text,
             "hybrid_score": hybrid_score
         })
         
     scored_candidates.sort(key=lambda x: x["hybrid_score"], reverse=True)
     top_candidates = scored_candidates[:10]
     
-    # Cross-Encoder basé sur la requête réécrite
+    # Cross Encoder basé sur la requête réécrite
     rerank_pairs = [[query_recherchee, cand["text"]] for cand in top_candidates]
     rerank_scores = reranker.predict(rerank_pairs)
     
@@ -117,7 +118,7 @@ def executer_pipeline_rag(input_data):
     
     print(f"[Pipeline RAG] Meilleur score de Re-ranking obtenu : {score_max:.4f}")
     
-    # GUARDRAIL
+    # guardrail
     if score_max < SEUIL_PERTINENCE:
         print(f"[Guardrail Sécurité] Score ({score_max:.4f}) inférieur au seuil ({SEUIL_PERTINENCE}). Refus de répondre.")
         return (
